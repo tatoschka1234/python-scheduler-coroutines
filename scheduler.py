@@ -47,12 +47,14 @@ class Scheduler:
         try:
             return self.jobs_uuid_map[job_uuid].id
         except KeyError as ex:
+            logger.exception(ex)
             raise ValueError(str(ex))
 
     def get_job_by_uuid(self, job_uuid: uuid.UUID) -> Job | Exception:
         try:
             return self.jobs_uuid_map[job_uuid]
         except KeyError as ex:
+            logger.exception(ex)
             raise ValueError(str(ex))
 
     def handle_job_after_error(self, job: Job) -> None:
@@ -110,12 +112,12 @@ class Scheduler:
         return self.dq.popleft()
 
     def schedule(self) -> Generator[None, Optional[float], None]:
-        i = 0
+        debug_loop_counter = 0
         while True:
             time.sleep(0.2)
             yield
-            i += 1
-            logger.debug(f"************{i}: new scheduler loop*************")
+            debug_loop_counter += 1
+            logger.debug(f"************{debug_loop_counter}: new scheduler loop*************")
             job = self.get_task()
             if job:
                 current_time = dt.datetime.utcnow()
